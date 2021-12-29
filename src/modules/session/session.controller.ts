@@ -5,7 +5,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateSessionResponseDto } from './dto/create-session-response.dto';
 import { CreateSessionDto } from './dto/create-session.dto';
 import {
@@ -14,6 +14,7 @@ import {
 } from './dto/get-session-price.dto';
 import { SessionsService } from './session.service';
 
+@ApiTags('Session')
 @Controller('session')
 export class SessionsController {
   constructor(private readonly sessionsService: SessionsService) {}

@@ -12,7 +12,7 @@ export class CreateSessionDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  toDate: Date;
+  toDate: string;
 
   @ApiProperty()
   @IsNotEmpty()

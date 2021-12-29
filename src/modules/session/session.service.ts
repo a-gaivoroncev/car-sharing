@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreateSessionDto } from './dto/create-session.dto';
 import { SessionRepository } from './repositories/session.repository';
 import { TariffRepository } from './repositories/tariff.repository';
 
@@ -8,46 +9,6 @@ export class SessionsService {
     private readonly sessionRepository: SessionRepository,
     private readonly tariffRepository: TariffRepository,
   ) {}
-
-  getNumberOfDates(dateFromString: string, dateToString: string) {
-    const dateFrom = new Date(dateFromString);
-    const dateTo = new Date(dateToString);
-    const numberOfDays = this.calculateDaysRange(dateFrom, dateTo);
-
-    if (isNaN(dateFrom.getTime()) || isNaN(dateTo.getTime())) {
-      throw new BadRequestException('Invalid date');
-    }
-    if (!this.isWorkingDay(dateFrom) || !this.isWorkingDay(dateTo)) {
-      throw new BadRequestException('You cant start/end rent at weekends'); // вынести наверх
-    }
-
-    if (numberOfDays > 30) {
-      throw new BadRequestException('Max rent period error'); // вынести наверх
-    }
-
-    return numberOfDays;
-  }
-
-  private calculateDaysRange(dateFrom: Date, dateTo: Date) {
-    return (dateTo.getTime() - dateFrom.getTime()) / (1000 * 3600 * 24);
-  }
-
-  isWorkingDay(date: Date) {
-    const dayOfWeek = date.getDay();
-    return dayOfWeek !== 0 && dayOfWeek !== 6;
-  }
-
-  caclulateRentPrice(numberOfDays: number, tariffPrice: number) {
-    let rate = 1;
-    if (numberOfDays <= 5 && numberOfDays >= 3) {
-      rate = 0.95;
-    } else if (numberOfDays <= 14) {
-      rate = 0.9;
-    } else if (numberOfDays <= 30) {
-      rate = 0.85;
-    }
-    return numberOfDays * tariffPrice * rate;
-  }
 
   async calculatePrice(getSessionPriceDto) {
     const { tariffId } = getSessionPriceDto;
@@ -67,11 +28,12 @@ export class SessionsService {
     };
   }
 
-  async createSession(createSessionData) {
+  async createSession(createSessionData: CreateSessionDto) {
     try {
       const { carId, tariffId } = createSessionData;
       const dateFromString = createSessionData.fromDate;
       const dateToString = createSessionData.toDate;
+
       const fromDate = new Date(dateFromString);
       const toDate = new Date(dateToString);
 
@@ -96,7 +58,47 @@ export class SessionsService {
     }
   }
 
-  async checkAvailableStatus(
+  private getNumberOfDates(dateFromString: string, dateToString: string) {
+    const dateFrom = new Date(dateFromString);
+    const dateTo = new Date(dateToString);
+    const numberOfDays = this.calculateDaysRange(dateFrom, dateTo);
+
+    if (isNaN(dateFrom.getTime()) || isNaN(dateTo.getTime())) {
+      throw new BadRequestException('Invalid date');
+    }
+    if (!this.isWorkingDay(dateFrom) || !this.isWorkingDay(dateTo)) {
+      throw new BadRequestException('You cant start/end rent at weekends'); // вынести наверх
+    }
+
+    if (numberOfDays > 30) {
+      throw new BadRequestException('Max rent period error'); // вынести наверх
+    }
+
+    return numberOfDays;
+  }
+
+  private calculateDaysRange(dateFrom: Date, dateTo: Date) {
+    return (dateTo.getTime() - dateFrom.getTime()) / (1000 * 3600 * 24);
+  }
+
+  private isWorkingDay(date: Date) {
+    const dayOfWeek = date.getDay();
+    return dayOfWeek !== 0 && dayOfWeek !== 6;
+  }
+
+  private caclulateRentPrice(numberOfDays: number, tariffPrice: number) {
+    let rate = 1;
+    if (numberOfDays <= 5 && numberOfDays >= 3) {
+      rate = 0.95;
+    } else if (numberOfDays <= 14) {
+      rate = 0.9;
+    } else if (numberOfDays <= 30) {
+      rate = 0.85;
+    }
+    return numberOfDays * tariffPrice * rate;
+  }
+
+  private async checkAvailableStatus(
     carId: string,
     dateFrom: Date,
     dateTo: Date,
@@ -117,7 +119,7 @@ export class SessionsService {
     return dateFrom < dateTo;
   }
 
-  async hasNotSessions(
+  private async hasNotSessions(
     carId: string,
     dateFrom: Date,
     dateTo: Date,

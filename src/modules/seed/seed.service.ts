@@ -12,7 +12,7 @@ export class SeedService {
     await this.seedTariffs();
   }
 
-  async createTables() {
+  private async createTables() {
     await this.connection.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
     await this.connection.query(`CREATE TABLE IF NOT EXISTS cars 
             (vin VARCHAR(255) NOT NULL PRIMARY KEY, 
@@ -33,7 +33,7 @@ export class SeedService {
             tariff_name VARCHAR(255) NOT NULL REFERENCES tariffs(name));`);
   }
 
-  async seedCars() {
+  private async seedCars() {
     this.connection.query(
       `INSERT INTO cars (vin, model, brand, state_number) VALUES ('4Y1SL65848Z411431', 'model s', 'LADA', 'a001aa') ON CONFLICT DO NOTHING`,
     );
@@ -51,7 +51,7 @@ export class SeedService {
     );
   }
 
-  async seedTariffs() {
+  private async seedTariffs() {
     this.connection.query(
       `INSERT INTO tariffs (price, payed_for_units_amount, name) VALUES (270, 200, 'Первый тариф') ON CONFLICT DO NOTHING`,
     );
