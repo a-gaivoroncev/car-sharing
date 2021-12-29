@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import { DATABASE_POOL } from 'src/constants';
 import { ICreateSession } from 'src/types/session';
 import { IGetSessions } from 'src/types/session';
-import { CreateSessionResponseDto } from '../dto/create-session-response.dto';
+import { CreateSessionResponseDto } from '../dto/create-session.dto';
 
 @Injectable()
 export class SessionRepository {

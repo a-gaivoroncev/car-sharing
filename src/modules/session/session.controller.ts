@@ -6,8 +6,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateSessionResponseDto } from './dto/create-session-response.dto';
-import { CreateSessionDto } from './dto/create-session.dto';
+import { CreateSessionDto, CreateSessionResponseDto } from './dto/create-session.dto';
 import {
   GetSessionPriceRequestDto,
   GetSessionPriceResponseDto,
