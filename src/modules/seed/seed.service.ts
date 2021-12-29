@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Pool } from 'pg';
 import { DATABASE_POOL } from 'src/constants';
-import { SessionRepository } from '../session/repositories/session.repository';
 
 @Injectable()
 export class SeedService {

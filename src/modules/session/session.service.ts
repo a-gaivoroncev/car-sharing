@@ -126,17 +126,17 @@ export class SessionsService {
     dateFrom.setDate(dateFrom.getDate() - restPeriod).toLocaleString();
     dateTo.setDate(dateTo.getDate() + restPeriod).toLocaleString();
 
-    const availableDateFrom = `${dateFrom.getFullYear()}-${
-      dateFrom.getMonth() + 1
-    }-${dateFrom.getDate()}`;
-    const availableDateTo = `${dateTo.getFullYear()}-${
-      dateTo.getMonth() + 1
-    }-${dateTo.getDate()}`;
-
+    const unAvailableDateFrom = `${dateFrom.getFullYear()}-${
+        dateFrom.getMonth() + 1
+      }-${dateFrom.getDate()}`;
+    const unAvailablDateTo = `${dateTo.getFullYear()}-${
+        dateTo.getMonth() + 1
+      }-${dateTo.getDate()}`;
+    
     const values = await this.sessionRepository.getSessionsByDate(
       carId,
-      availableDateFrom,
-      availableDateTo,
+      unAvailableDateFrom,
+      unAvailablDateTo,
     );
 
     if (values.length) {
