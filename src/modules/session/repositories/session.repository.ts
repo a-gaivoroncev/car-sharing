@@ -29,13 +29,14 @@ export class SessionRepository {
     dateFrom: string,
     dateTo: string,
   ): Promise<CreateSessionResponseDto[]> {
+    
     return (
       await this.connection.query(
         `
     SELECT * FROM rental_sessions WHERE 
     car_id = $1 
-    AND rent_date_from >= $2
-    AND rent_date_to <= $3`,
+    AND ((rent_date_from >= $2
+    AND rent_date_to <= $3) OR (rent_date_from < $2 AND rent_date_to > $2) OR (rent_date_from < $3 AND rent_date_to > $3))`,
         [carId, dateFrom, dateTo],
       )
     ).rows;
