@@ -3,5 +3,5 @@ interface ICarReport {
 }
 
 export interface ICarsReport {
-  [key: string]: ICarReport
+  [key: string]: ICarReport;
 }

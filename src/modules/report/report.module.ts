@@ -10,6 +10,6 @@ import { ReportService } from './report.service';
   imports: [DatabaseModule, SessionsModule],
   controllers: [CarController],
   providers: [ReportService, SessionRepository, ...databaseProviders],
-  exports: [ReportService]
+  exports: [ReportService],
 })
 export class ReportModule {}

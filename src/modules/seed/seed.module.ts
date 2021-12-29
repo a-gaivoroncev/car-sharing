@@ -6,6 +6,6 @@ import { SeedService } from './seed.service';
 @Module({
   imports: [ConfigModule, DatabaseModule],
   providers: [SeedService],
-  exports: [SeedService]
+  exports: [SeedService],
 })
 export class SeedModule {}

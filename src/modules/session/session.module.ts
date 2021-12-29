@@ -10,6 +10,11 @@ import { databaseProviders } from '../database/database.providers';
 @Module({
   imports: [ConfigModule, DatabaseModule],
   controllers: [SessionsController],
-  providers: [SessionsService, SessionRepository, TariffRepository, ...databaseProviders],
+  providers: [
+    SessionsService,
+    SessionRepository,
+    TariffRepository,
+    ...databaseProviders,
+  ],
 })
 export class SessionsModule {}

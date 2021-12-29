@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
-export class CreateSessionDto{
+export class CreateSessionDto {
   @ApiProperty()
   @IsNotEmpty()
   carId: string;
@@ -17,5 +17,4 @@ export class CreateSessionDto{
   @ApiProperty()
   @IsNotEmpty()
   tariffId: string;
-
 }

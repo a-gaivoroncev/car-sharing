@@ -1,16 +1,15 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-
 
 export class GetSessionPriceRequestDto {
   @ApiProperty()
   @IsNotEmpty()
   fromDate: string;
-  
+
   @ApiProperty()
   @IsNotEmpty()
   toDate: string;
-  
+
   @ApiProperty()
   @IsNotEmpty()
   tariffId: string;
@@ -18,5 +17,5 @@ export class GetSessionPriceRequestDto {
 
 export class GetSessionPriceResponseDto {
   @ApiProperty()
-  carRentPrice: number
+  carRentPrice: number;
 }
