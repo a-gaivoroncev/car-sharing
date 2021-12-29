@@ -2,7 +2,7 @@ version: "3"
 services:
   database:
     image: postgres
-    container_name: "test_postgres"
+    container_name: "carsharing_database"
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
@@ -11,3 +11,29 @@ services:
       - ./db/postgres-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+#     # network_mode: host
+# # 
+#     # networks:
+#       # - aboba
+#   carsharing_backend:
+#     build: .
+#     context: .
+#     container_name: "carsharing_backend_app"
+#     depends_on:
+#       - database
+#     environment:
+#       - POSTGRES_HOST=database
+#       - POSTGRES_PORT=5432
+#       - POSTGRES_USER=root
+#       - POSTGRES_PASSWORD=root
+#       - POSTGRES_DB=postgres
+#     ports:
+#       - 3000:3000
+#     # network_mode: host
+#     networks:
+#       - aboba
+
+# networks:
+#   aboba:
+#     # driver: host
+#     driver: bridge

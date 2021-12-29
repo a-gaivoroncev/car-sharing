@@ -1,32 +1,42 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
+import { ICarsReport } from 'src/types/report';
+import { IGetSessions } from 'src/types/session';
+import { SessionRepository } from '../session/repositories/session.repository';
 
 @Injectable()
-export class CarService {
-    constructor(private readonly db: DatabaseService) {}
+export class ReportService {
+    constructor(private readonly sessionRepository: SessionRepository) {}
 
-    async createNewReport(dateFromString: string, dateToString: string, targetCarId = null) {
+    async createNewReport(getReportDto) {
+
+        const dateFromString = getReportDto.dateFrom;
+        const dateToString = getReportDto.dateTo;
+
+        let result = { averageOfAll: 0, cars: {} }
         const dateFrom = new Date(dateFromString)
         const dateTo = new Date(dateToString)
+
+        if (dateFrom > dateTo) {
+            throw new Error('Invalid dates')
+        }
 
         const yearFrom = dateFrom.getFullYear();
         const monthFrom = dateFrom.getMonth() + 1;
         const yearTo = dateTo.getFullYear();
         const monthTo = dateTo.getMonth() + 1;
         
-        let dateQuery = `((EXTRACT(YEAR FROM sessions.rent_date_from) = '${yearFrom}') OR (EXTRACT(YEAR FROM sessions.rent_date_to) = '${yearTo}')) AND
-        ((EXTRACT(MONTH FROM sessions.rent_date_from) >= '${monthFrom}') OR (EXTRACT(MONTH FROM sessions.rent_date_from) <= '${monthTo}')) OR
-        ((EXTRACT(YEAR FROM sessions.rent_date_from) > '${yearFrom}') OR (EXTRACT(YEAR FROM sessions.rent_date_to) < '${yearTo}'))`
-        const sessions = await this.db.executeQuery(`
-            SELECT json_build_object(
-            'car_number', cars.state_number, 'date_from', sessions.rent_date_from, 'date_to', sessions.rent_date_to) as session_data
-            FROM rental_sessions sessions LEFT JOIN cars ON cars.vin = sessions.car_id
-            WHERE
-            ${targetCarId ? `(cars.vin = sessions.car_id) AND (${dateQuery})` : `${dateQuery}`}
-        `)
-        const numberOfMonths = this.calculateNumberOfMonths(monthFrom, monthTo, yearFrom, yearTo)
+        const sessions: IGetSessions[] = await this.sessionRepository.getSessionsSliceByTimePeroiod(yearFrom, monthFrom, yearTo, monthTo);
+        
+        if (!sessions.length) {
+            return {
+                hasError: false,
+                message: 'Sessions not found'
+            }
+        }
 
-        const reportByCar: any = this.calculateReportDate(monthFrom, monthTo, yearFrom, yearTo, sessions)
+        const numberOfMonths: number = this.calculateNumberOfMonths(monthFrom, monthTo, yearFrom, yearTo)
+
+        const reportByCar: ICarsReport = this.calculateReportDate(monthFrom, monthTo, yearFrom, yearTo, sessions)
         
         let averageOfAll = 0
 
@@ -35,29 +45,26 @@ export class CarService {
             averageOfAll += +reportByCar[key].numberOfDays
         }
         
-        reportByCar.averageOfAll = averageOfAll / Object.keys(reportByCar).length
-        return reportByCar
+        result.averageOfAll = averageOfAll / Object.keys(reportByCar).length
+        result.cars = reportByCar
+        
+        return result
     }
 
-    calculateNumberOfMonths(monthFrom: number, monthTo: number, yearFrom: number, yearTo: number) {        
+    private calculateNumberOfMonths(monthFrom: number, monthTo: number, yearFrom: number, yearTo: number) {        
         if (yearFrom === yearTo) {
             return monthTo - monthFrom
-        } else {
-            return (yearTo - yearFrom - 1) * 12 + (12 - monthFrom + monthTo)
-        }
+        } 
+        return (yearTo - yearFrom - 1) * 12 + (12 - monthFrom + monthTo)
     }
 
-    calculateAverageDays(numberOfDays, numberOfMonths) {
-        return (numberOfDays / numberOfMonths).toFixed(2)
-    }
 
-    calculateReportDate(monthFrom, monthTo, yearFrom, yearTo, sessions: Array<any>) {
+
+    private calculateReportDate(monthFrom, monthTo, yearFrom, yearTo, sessions: IGetSessions[]) {
         const result = {}
         const lastDayOfLastMonth = new Date(yearTo, monthTo, 0).getDate()
 
         for (const session of sessions) {
-            
-            
             const sessionDateFrom = new Date(session.session_data.date_from)
             const sessionDateTo = new Date(session.session_data.date_to)
             
@@ -75,7 +82,6 @@ export class CarService {
             if (yearFrom === sessionYearFrom || yearTo === sessionYearTo) {
                 if (sessionMonthFrom < monthFrom) {
                     numberOfDays = sessionDayTo
-                    
                 } else if (sessionMonthTo > monthTo) {
                     numberOfDays = lastDayOfLastMonth - sessionDayFrom
                 } else {
@@ -93,9 +99,16 @@ export class CarService {
                     numberOfDays: 0,
                 }
             }
-            
+
             result[session.session_data.car_number].numberOfDays += numberOfDays
         }
         return result
+    }
+
+    private calculateAverageDays(numberOfDays, numberOfMonths) {
+        if (numberOfMonths === 0) {
+            throw new Error('Division by zero error')
+        }
+        return numberOfMonths ? +(numberOfDays / numberOfMonths).toFixed(2) : 0
     }
 }

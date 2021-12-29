@@ -16,4 +16,5 @@ export const databaseProviders = [{
     provide: DATABASE_POOL,
     inject: [ConfigService],
     useFactory: databasePoolFactory,
-  }]
+  }
+]
